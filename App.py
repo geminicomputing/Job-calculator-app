@@ -10,14 +10,17 @@ st.set_page_config(page_title="Gemini Computing - Pro Calculator", layout="wide"
 st.sidebar.title("Gemini Computing")
 st.sidebar.markdown("---")
 
-# 1. Settings
-st.sidebar.header("Settings")
-labour_rate = st.sidebar.number_input("Labour rate / hour (£)", value=40.0)
-overhead_rate = st.sidebar.number_input("Internal overhead cost / Hour (£)", value=0.0)
-parts_markup = st.sidebar.slider("Parts Markup (%)", 0, 100, 30) / 100
-base_profit_margin = st.sidebar.slider("Base Profit Margin (%)", 0, 100, 25) / 100
+# 1. Settings Menu (Refined)
+with st.sidebar.expander("⚙️ Settings Menu"):
+    st.header("Global Rates")
+    labour_rate = st.number_input("Labour rate / hour (£)", value=40.0)
+    overhead_rate = st.number_input("Internal overhead cost / Hour (£)", value=0.0)
+    st.header("Markups & Margins")
+    parts_markup = st.slider("Parts Markup (%)", 0, 100, 30) / 100
+    base_profit_margin = st.slider("Base Profit Margin (%)", 0, 100, 25) / 100
 
-# 3. Tiered Pricing Logic
+# 3. Tiered Pricing Logic (Remains in Sidebar)
+st.sidebar.markdown("---")
 st.sidebar.header("Job Tier")
 tier = st.sidebar.selectbox("Select Urgency", ["Standard", "Urgent (+10% Margin)", "Warranty (0% Margin)"])
 
