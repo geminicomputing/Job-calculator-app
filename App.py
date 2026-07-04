@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import math
 from datetime import datetime
 
 # --- CONFIGURATION ---
@@ -46,11 +47,12 @@ if st.button("Calculate and Save"):
     allocated_overhead = labour_hours * overhead_rate
     break_even = marked_up_parts + gross_labour + allocated_overhead
     
-    # Calculate Final Quote
+    # Calculate Final Quote (Rounded up)
     if profit_margin < 1:
-        final_quote = break_even / (1 - profit_margin)
+        raw_quote = break_even / (1 - profit_margin)
+        final_quote = math.ceil(raw_quote)
     else:
-        final_quote = break_even
+        final_quote = math.ceil(break_even)
         
     net_profit = final_quote - break_even
 
@@ -58,7 +60,7 @@ if st.button("Calculate and Save"):
     new_entry = {
         "Date": datetime.now().strftime("%Y-%m-%d %H:%M"), 
         "Client": job_ref, 
-        "Quote (£)": round(final_quote, 2), 
+        "Quote (£)": float(final_quote), 
         "Profit (£)": round(net_profit, 2)
     }
     
