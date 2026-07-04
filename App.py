@@ -24,16 +24,18 @@ st.sidebar.markdown("---")
 
 # 1. Settings Menu
 with st.sidebar.expander("⚙️ Settings Menu"):
+    st.header("Currency")
+    currency = st.selectbox("Select Currency", ["£", "$", "€"])
+    
     st.header("Global Rates")
-    labour_rate = st.number_input("Labour rate / hour (£)", value=40.00, format="%.2f")
-    overhead_rate = st.number_input("Internal overhead cost / Hour (£)", value=0.00, format="%.2f")
+    labour_rate = st.number_input(f"Labour rate / hour ({currency})", value=40.00, format="%.2f")
+    overhead_rate = st.number_input(f"Internal overhead cost / Hour ({currency})", value=0.00, format="%.2f")
     
     st.header("Markups & Margins")
     parts_markup = st.slider("Parts Markup (%)", 0, 100, 30) / 100
     base_profit_margin = st.slider("Base Profit Margin (%)", 0, 100, 25) / 100
     
     st.header("Rounding Settings")
-    # Added 0.5 option here
     rounding_option = st.selectbox("Round Quote To Nearest", [0.5, 1, 5, 10])
 
 # Tiered Pricing
@@ -55,7 +57,7 @@ uploaded_file = st.sidebar.file_uploader("Upload existing history (CSV)", type="
 if uploaded_file is not None:
     history_df = pd.read_csv(uploaded_file)
 else:
-    history_df = pd.DataFrame(columns=["Date", "Client", "Quote (£)", "Profit (£)"])
+    history_df = pd.DataFrame(columns=["Date", "Client", f"Quote ({currency})", f"Profit ({currency})"])
 
 # Main Application Interface
 # Display the logo on the main page
@@ -65,7 +67,7 @@ if os.path.exists(logo_path):
 st.header("Calculate Job Quote")
 col_a, col_b = st.columns(2)
 job_ref = col_a.text_input("Job Ref / Client")
-wholesale_parts = col_b.number_input("Wholesale Parts Cost (£)", min_value=0.00, value=0.00, format="%.2f")
+wholesale_parts = col_b.number_input(f"Wholesale Parts Cost ({currency})", min_value=0.00, value=0.00, format="%.2f")
 labour_hours = col_a.number_input("Estimated Labour Hours", min_value=0.00, value=0.00, format="%.2f")
 
 if st.button("Calculate and Save"):
@@ -89,14 +91,14 @@ if st.button("Calculate and Save"):
     new_entry = {
         "Date": datetime.now().strftime("%Y-%m-%d %H:%M"), 
         "Client": job_ref, 
-        "Quote (£)": f"{float(final_quote):.2f}", 
-        "Profit (£)": f"{float(net_profit):.2f}"
+        f"Quote ({currency})": f"{float(final_quote):.2f}", 
+        f"Profit ({currency})": f"{float(net_profit):.2f}"
     }
     
     history_df = pd.concat([history_df, pd.DataFrame([new_entry])], ignore_index=True)
 
-    st.success(f"Final Client Quote: £{final_quote:.2f}")
-    st.write(f"**Net Profit:** £{net_profit:.2f}")
+    st.success(f"Final Client Quote: {currency}{final_quote:.2f}")
+    st.write(f"**Net Profit:** {currency}{net_profit:.2f}")
 
 # Display History Table
 if not history_df.empty:
