@@ -2,15 +2,24 @@ import streamlit as st
 import pandas as pd
 import math
 from datetime import datetime
+import io
+import os
 
 # --- CONFIGURATION ---
 st.set_page_config(page_title="Gemini Computing - Pro Calculator", layout="wide")
 
-# Branding
+# Sidebar Branding
 st.sidebar.title("Gemini Computing")
+
+# Display the logo if it exists
+if os.path.exists("image_2.png"):
+    st.sidebar.image("image_2.png", use_column_width=True)
+else:
+    st.sidebar.warning("Logo (image_2.png) not found in project folder.")
+
 st.sidebar.markdown("---")
 
-# 1. Settings Menu (Refined)
+# 1. Settings Menu
 with st.sidebar.expander("⚙️ Settings Menu"):
     st.header("Global Rates")
     labour_rate = st.number_input("Labour rate / hour (£)", value=40.0)
@@ -19,11 +28,10 @@ with st.sidebar.expander("⚙️ Settings Menu"):
     parts_markup = st.slider("Parts Markup (%)", 0, 100, 30) / 100
     base_profit_margin = st.slider("Base Profit Margin (%)", 0, 100, 25) / 100
 
-# 3. Tiered Pricing Logic (Remains in Sidebar)
+# Tiered Pricing
 st.sidebar.markdown("---")
 st.sidebar.header("Job Tier")
 tier = st.sidebar.selectbox("Select Urgency", ["Standard", "Urgent (+10% Margin)", "Warranty (0% Margin)"])
-
 if tier == "Urgent (+10% Margin)":
     profit_margin = base_profit_margin + 0.10
 elif tier == "Warranty (0% Margin)":
@@ -31,9 +39,15 @@ elif tier == "Warranty (0% Margin)":
 else:
     profit_margin = base_profit_margin
 
-# 2. Session State for Quote History
-if 'history' not in st.session_state:
-    st.session_state.history = pd.DataFrame(columns=["Date", "Client", "Quote (£)", "Profit (£)"])
+# 2. Persistent Quote History (File-based)
+st.sidebar.markdown("---")
+st.sidebar.header("Data Management")
+uploaded_file = st.sidebar.file_uploader("Upload existing history (CSV)", type="csv")
+
+if uploaded_file is not None:
+    history_df = pd.read_csv(uploaded_file)
+else:
+    history_df = pd.DataFrame(columns=["Date", "Client", "Quote (£)", "Profit (£)"])
 
 # Main Application Interface
 st.header("Calculate Job Quote")
@@ -42,7 +56,6 @@ job_ref = col_a.text_input("Job Ref / Client")
 wholesale_parts = col_b.number_input("Wholesale Parts Cost (£)", min_value=0.0, value=0.0)
 labour_hours = col_a.number_input("Estimated Labour Hours", min_value=0.0, value=0.0)
 
-# Calculate Button Logic
 if st.button("Calculate and Save"):
     # Perform calculations
     marked_up_parts = wholesale_parts * (1 + parts_markup)
@@ -50,7 +63,6 @@ if st.button("Calculate and Save"):
     allocated_overhead = labour_hours * overhead_rate
     break_even = marked_up_parts + gross_labour + allocated_overhead
     
-    # Calculate Final Quote (Rounded up)
     if profit_margin < 1:
         raw_quote = break_even / (1 - profit_margin)
         final_quote = math.ceil(raw_quote)
@@ -59,7 +71,7 @@ if st.button("Calculate and Save"):
         
     net_profit = final_quote - break_even
 
-    # Save to history session
+    # Save to history
     new_entry = {
         "Date": datetime.now().strftime("%Y-%m-%d %H:%M"), 
         "Client": job_ref, 
@@ -67,19 +79,16 @@ if st.button("Calculate and Save"):
         "Profit (£)": round(net_profit, 2)
     }
     
-    # Use pd.concat properly
-    new_row = pd.DataFrame([new_entry])
-    st.session_state.history = pd.concat([st.session_state.history, new_row], ignore_index=True)
+    history_df = pd.concat([history_df, pd.DataFrame([new_entry])], ignore_index=True)
 
-    # Display Results
     st.success(f"Final Client Quote: £{final_quote:,.2f}")
     st.write(f"**Net Profit:** £{net_profit:,.2f}")
 
 # Display History Table
-if not st.session_state.history.empty:
+if not history_df.empty:
     st.header("Quote History")
-    st.table(st.session_state.history)
+    st.table(history_df)
     
-    # Export button
-    csv = st.session_state.history.to_csv(index=False).encode('utf-8')
-    st.download_button("Download History as CSV", data=csv, file_name="quote_history.csv")
+    # Export updated history
+    csv = history_df.to_csv(index=False).encode('utf-8')
+    st.download_button("Download Updated History", data=csv, file_name="quote_history.csv")
