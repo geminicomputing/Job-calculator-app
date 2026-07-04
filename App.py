@@ -36,7 +36,15 @@ with st.sidebar.expander("⚙️ Settings Menu"):
     base_profit_margin = st.slider("Base Profit Margin (%)", 0, 100, 25) / 100
     
     st.header("Rounding Settings")
-    rounding_option = st.selectbox("Round Quote To Nearest", [0.5, 1, 5, 10])
+    # Mapping dictionary to show friendly labels
+    rounding_map = {
+        "50p": 0.5,
+        "£1.00": 1.0,
+        "£5.00": 5.0,
+        "£10.00": 10.0
+    }
+    rounding_label = st.selectbox("Round Quote To Nearest", list(rounding_map.keys()))
+    rounding_option = rounding_map[rounding_label]
 
 # Tiered Pricing
 st.sidebar.markdown("---")
@@ -107,4 +115,4 @@ if not history_df.empty:
     
     # Export updated history
     csv = history_df.to_csv(index=False).encode('utf-8')
-    st.download_button("Download Updated History", data=csv, file_name="quote_history.csv")
+    st.download_button("Download Updated History", data=csv, file_name="quote_history_updated.csv")
