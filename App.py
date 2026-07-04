@@ -8,14 +8,17 @@ import os
 # --- CONFIGURATION ---
 st.set_page_config(page_title="Gemini Computing - Pro Calculator", layout="wide")
 
+# Logo file path
+logo_path = "Gemini computing workwear logo - New.jpeg"
+
 # Sidebar Branding
 st.sidebar.title("Gemini Computing")
 
-# Display the logo if it exists
-if os.path.exists("image_2.png"):
-    st.sidebar.image("image_2.png", use_column_width=True)
+# Display the logo in the sidebar if it exists
+if os.path.exists(logo_path):
+    st.sidebar.image(logo_path, width=200) 
 else:
-    st.sidebar.warning("Logo (image_2.png) not found in project folder.")
+    st.sidebar.warning(f"Logo ({logo_path}) not found.")
 
 st.sidebar.markdown("---")
 
@@ -50,6 +53,10 @@ else:
     history_df = pd.DataFrame(columns=["Date", "Client", "Quote (£)", "Profit (£)"])
 
 # Main Application Interface
+# Display the logo on the main page
+if os.path.exists(logo_path):
+    st.image(logo_path, width=300)
+
 st.header("Calculate Job Quote")
 col_a, col_b = st.columns(2)
 job_ref = col_a.text_input("Job Ref / Client")
