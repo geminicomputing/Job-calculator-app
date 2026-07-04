@@ -6,10 +6,10 @@ import io
 import os
 
 # --- CONFIGURATION ---
-st.set_page_config(page_title="Gemini Computing - Pro Calculator", layout="wide")
-
-# Logo file path
 logo_path = "Gemini computing workwear logo - New.jpeg"
+
+# Using the logo file as the page icon (favicon)
+st.set_page_config(page_title="Gemini Computing - Pro Calculator", page_icon=logo_path if os.path.exists(logo_path) else None, layout="wide")
 
 # Sidebar Branding
 st.sidebar.title("Gemini Computing")
