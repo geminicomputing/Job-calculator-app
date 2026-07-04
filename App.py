@@ -25,11 +25,16 @@ st.sidebar.markdown("---")
 # 1. Settings Menu
 with st.sidebar.expander("⚙️ Settings Menu"):
     st.header("Global Rates")
-    labour_rate = st.number_input("Labour rate / hour (£)", value=40.0)
-    overhead_rate = st.number_input("Internal overhead cost / Hour (£)", value=0.0)
+    labour_rate = st.number_input("Labour rate / hour (£)", value=40.00, format="%.2f")
+    overhead_rate = st.number_input("Internal overhead cost / Hour (£)", value=0.00, format="%.2f")
+    
     st.header("Markups & Margins")
     parts_markup = st.slider("Parts Markup (%)", 0, 100, 30) / 100
     base_profit_margin = st.slider("Base Profit Margin (%)", 0, 100, 25) / 100
+    
+    st.header("Rounding Settings")
+    # Added 0.5 option here
+    rounding_option = st.selectbox("Round Quote To Nearest", [0.5, 1, 5, 10])
 
 # Tiered Pricing
 st.sidebar.markdown("---")
@@ -60,8 +65,8 @@ if os.path.exists(logo_path):
 st.header("Calculate Job Quote")
 col_a, col_b = st.columns(2)
 job_ref = col_a.text_input("Job Ref / Client")
-wholesale_parts = col_b.number_input("Wholesale Parts Cost (£)", min_value=0.0, value=0.0)
-labour_hours = col_a.number_input("Estimated Labour Hours", min_value=0.0, value=0.0)
+wholesale_parts = col_b.number_input("Wholesale Parts Cost (£)", min_value=0.00, value=0.00, format="%.2f")
+labour_hours = col_a.number_input("Estimated Labour Hours", min_value=0.00, value=0.00, format="%.2f")
 
 if st.button("Calculate and Save"):
     # Perform calculations
@@ -72,9 +77,11 @@ if st.button("Calculate and Save"):
     
     if profit_margin < 1:
         raw_quote = break_even / (1 - profit_margin)
-        final_quote = math.ceil(raw_quote)
     else:
-        final_quote = math.ceil(break_even)
+        raw_quote = break_even
+    
+    # Apply rounding logic
+    final_quote = math.ceil(raw_quote / rounding_option) * rounding_option
         
     net_profit = final_quote - break_even
 
@@ -82,14 +89,14 @@ if st.button("Calculate and Save"):
     new_entry = {
         "Date": datetime.now().strftime("%Y-%m-%d %H:%M"), 
         "Client": job_ref, 
-        "Quote (£)": float(final_quote), 
-        "Profit (£)": round(net_profit, 2)
+        "Quote (£)": f"{float(final_quote):.2f}", 
+        "Profit (£)": f"{float(net_profit):.2f}"
     }
     
     history_df = pd.concat([history_df, pd.DataFrame([new_entry])], ignore_index=True)
 
-    st.success(f"Final Client Quote: £{final_quote:,.2f}")
-    st.write(f"**Net Profit:** £{net_profit:,.2f}")
+    st.success(f"Final Client Quote: £{final_quote:.2f}")
+    st.write(f"**Net Profit:** £{net_profit:.2f}")
 
 # Display History Table
 if not history_df.empty:
