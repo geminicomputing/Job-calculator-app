@@ -33,7 +33,7 @@ with st.sidebar.expander("⚙️ Settings Menu"):
     
     st.header("Markups & Margins")
     # Changed from slider to number input (arrows)
-    parts_markup = st.number_input("Parts Markup (%)", min_value=0, max_value=100, value=30, step=1) / 100
+    parts_markup = st.number_input("Parts Markup (%)", min_value=0, max_value=100, value=20, step=1) / 100
     base_profit_margin = st.number_input("Base Profit Margin (%)", min_value=0, max_value=100, value=20, step=1) / 100
     
     st.header("Rounding Settings")
