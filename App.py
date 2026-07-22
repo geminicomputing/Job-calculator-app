@@ -32,8 +32,9 @@ with st.sidebar.expander("⚙️ Settings Menu"):
     overhead_rate = st.number_input(f"Internal overhead cost / Hour ({currency})", value=0.00, format="%.2f")
     
     st.header("Markups & Margins")
-    parts_markup = st.slider("Parts Markup (%)", 0, 100, 30) / 100
-    base_profit_margin = st.slider("Base Profit Margin (%)", 0, 100, 25) / 100
+    # Changed from slider to number input (arrows)
+    parts_markup = st.number_input("Parts Markup (%)", min_value=0, max_value=100, value=30, step=1) / 100
+    base_profit_margin = st.number_input("Base Profit Margin (%)", min_value=0, max_value=100, value=20, step=1) / 100
     
     st.header("Rounding Settings")
     # Mapping dictionary to show friendly labels
